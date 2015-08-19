@@ -30,13 +30,10 @@
 
 #define EPMP_GPIO_USB_POWER	4
 
-static const char *epmp_part_probes[] = {
-	"epmp",
-	NULL,
-};
+#define EPMP_WMAC_CALDATA_OFFSET	0x1000
 
 static struct flash_platform_data epmp_flash_data = {
-	.part_probes	= epmp_part_probes,
+	.type = "mx25l6405d",
 };
 
 static struct gpio_led epmp_leds_gpio[] __initdata = {
@@ -59,32 +56,20 @@ static struct gpio_led epmp_leds_gpio[] __initdata = {
 	},
 };
 
-static void __init epmp_common_setup(void)
+static void __init epmp_setup(void)
 {
-	u8 *mac = (u8 *) KSEG1ADDR(0x1f01fc00);
-	// u8 *ee = (u8 *) KSEG1ADDR(0x1fff1000);
-
-	/* Disable JTAG, enabling GPIOs 0-3 */
-	/* Configure OBS4 line, for GPIO 4*/
-	ath79_gpio_function_setup(AR934X_GPIO_FUNC_JTAG_DISABLE,
-				 AR934X_GPIO_FUNC_CLK_OBS4_EN);
-
-	/* config gpio4 as normal gpio function */
-	// ath79_gpio_output_select(EPMP_GPIO_USB_POWER,
-				 // AR934X_GPIO_OUT_GPIO);
+	u8 *art = (u8 *)KSEG1ADDR(0x1fff0000);
+	u8 mac[6];
 
 	ath79_register_m25p80(&epmp_flash_data);
 
-	ath79_setup_ar934x_eth_cfg(AR934X_ETH_CFG_SW_PHY_SWAP);
+	ath79_init_mac(mac, art, 2);
 
+	ath79_setup_ar934x_eth_cfg(AR934X_ETH_CFG_SW_ONLY_MODE|AR934X_ETH_CFG_SW_PHY_SWAP);
 	ath79_register_mdio(1, 0x0);
-	ath79_register_mdio(0, 0x0);
-
 	ath79_init_mac(ath79_eth0_data.mac_addr, mac, 0);
-
-	ath79_init_mac(ath79_eth1_data.mac_addr, mac+1, 0);
-
-	/* GMAC0 is connected to the PHY0 of the internal switch */
+	ath79_init_mac(ath79_eth1_data.mac_addr, mac, 1);
+	
 	ath79_switch_data.phy4_mii_en = 1;
 	ath79_switch_data.phy_poll_mask = BIT(0);
 	ath79_eth0_data.phy_if_mode = PHY_INTERFACE_MODE_MII;
@@ -92,18 +77,10 @@ static void __init epmp_common_setup(void)
 	ath79_eth0_data.mii_bus_dev = &ath79_mdio1_device.dev;
 	ath79_register_eth(0);
 
-	ath79_eth1_data.phy_if_mode = PHY_INTERFACE_MODE_MII;
-	ath79_eth1_data.phy_mask = BIT(1);
-	ath79_eth1_data.mii_bus_dev = &ath79_mdio1_device.dev;
+	ath79_eth1_data.phy_if_mode = PHY_INTERFACE_MODE_GMII;
 	ath79_register_eth(1);
-
-	//TODO: ath79_register_wmac(ee, mac);
-}
-
-static void __init epmp_setup(void)
-{
-	epmp_common_setup();
-
+	
+	ath79_register_wmac(art + EPMP_WMAC_CALDATA_OFFSET, mac);
 	ath79_register_leds_gpio(-1, ARRAY_SIZE(epmp_leds_gpio) - 1,
 				 epmp_leds_gpio);
 

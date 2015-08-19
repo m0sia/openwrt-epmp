@@ -736,6 +736,9 @@ ar71xx_board_detect() {
 	"8devices Carambola2"*)
 		name="carambola2"
 		;;
+	"Cambium ePMP"*)
+		name="epmp"
+		;;
 	*"Sitecom WLR-8100")
 		name="wlr8100"
 		;;

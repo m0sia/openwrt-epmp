@@ -10,6 +10,7 @@
 
 #include <linux/gpio.h>
 #include <linux/platform_device.h>
+#include <linux/ath9k_platform.h>
 
 #include <asm/mach-ath79/ath79.h>
 #include <asm/mach-ath79/ar71xx_regs.h>
@@ -60,9 +61,10 @@ static void __init epmp_setup(void)
 {
 	u8 *art = (u8 *)KSEG1ADDR(0x1fff0000);
 	u8 mac[6];
+	u8 *cal_data;
 
 	ath79_register_m25p80(&epmp_flash_data);
-
+	
 	ath79_init_mac(mac, art, 2);
 
 	ath79_setup_ar934x_eth_cfg(AR934X_ETH_CFG_SW_ONLY_MODE|AR934X_ETH_CFG_SW_PHY_SWAP);
@@ -79,11 +81,16 @@ static void __init epmp_setup(void)
 
 	ath79_eth1_data.phy_if_mode = PHY_INTERFACE_MODE_GMII;
 	ath79_register_eth(1);
-	
-	ath79_register_wmac(art + EPMP_WMAC_CALDATA_OFFSET, mac);
+
+	cal_data=kmalloc(0x1000,GFP_KERNEL);
+	memcpy(cal_data, art + EPMP_WMAC_CALDATA_OFFSET, 0x1000);
+	memset(cal_data+0x1C,0x64,1);
+	memset(cal_data+0x1D,0x00,1);
+	ath79_register_wmac(cal_data, mac);
+	kfree(cal_data);
+
 	ath79_register_leds_gpio(-1, ARRAY_SIZE(epmp_leds_gpio) - 1,
 				 epmp_leds_gpio);
-
 }
 
 MIPS_MACHINE(ATH79_MACH_EPMP, "EPMP", "Cambium ePMP",

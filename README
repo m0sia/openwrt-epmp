@@ -1,35 +1,23 @@
-This is the buildsystem for the OpenWrt Linux distribution.
+# Cambium Networks ePMP target for OpenWRT Barrier Breaker
 
-Please use "make menuconfig" to configure your appreciated
-configuration for the toolchain and firmware.
+##Disclaimer
 
-You need to have installed gcc, binutils, bzip2, flex, python, perl, make,
-find, grep, diff, unzip, gawk, getopt, subversion, libz-dev and libc headers.
+It is not official port. Flash this at your own risk, I take no responsibility for your device. Flashing will VOID your warranty.
+You should take extreme caution when flashing a device and you should do that at your own risk since it may result in undesirable consequences such as bricking your device if not done properly.
 
-Run "./scripts/feeds update -a" to get all the latest package definitions
-defined in feeds.conf / feeds.conf.default respectively
-and "./scripts/feeds install -a" to install symlinks of all of them into
-package/feeds/.
+## Supported hardware platforms
 
-Use "make menuconfig" to configure your image.
+All current ePMP Non-GPS radios:
+* ePMP 1000 Integrated Antenna Radio
+* ePMP 1000 Connectorized Radio
 
-Simply running "make" will build your firmware.
-It will download all sources, build the cross-compile toolchain, 
-the kernel and all choosen applications.
+GPS radios are currently not supported by this port.
 
-You can use "scripts/flashing/flash.sh" for remotely updating your embedded
-system via tftp.
+## Supported on-board hardware:
 
-The OpenWrt system is documented in docs/. You will need a LaTeX distribution
-and the tex4ht package to build the documentation. Type "make -C docs/" to build it.
+* Ethernet controller(eth1 - Main port, eth0 - AUX port)
+* Wireless
+* Flash
+* Serial
 
-To build your own firmware you need to have access to a Linux, BSD or MacOSX system
-(case-sensitive filesystem required). Cygwin will not be supported because of
-the lack of case sensitiveness in the file system.
-
-
-Sunshine!
-	Your OpenWrt Project
-	http://openwrt.org
-
-
+LEDs are not working properly.

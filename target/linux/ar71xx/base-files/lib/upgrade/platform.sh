@@ -206,7 +206,8 @@ platform_check_image() {
 	nbg460n_550n_550nh | \
 	unifi | \
 	unifi-outdoor | \
-	carambola2 )
+	carambola2 | \
+	epmp )
 		[ "$magic" != "2705" ] && {
 			echo "Invalid image type."
 			return 1
